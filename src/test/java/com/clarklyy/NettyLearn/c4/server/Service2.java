@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.*;
+import java.nio.charset.Charset;
 import java.util.Iterator;
 
 /**
@@ -26,10 +27,12 @@ public class Service2 {
         //3. 设置sscKey感兴趣的事件
         sscKey.interestOps(SelectionKey.OP_ACCEPT);
         ssc.bind(new InetSocketAddress(8080));
+
         while(true){
             selector.select();
             //4. 处理事件，selectorKeys内部包含所有事件
             Iterator<SelectionKey> iter = selector.selectedKeys().iterator();
+
             while(iter.hasNext()){
                 SelectionKey key = iter.next();
                 //4.1处理事件时，要把key从selectedKeys中删除
@@ -40,24 +43,37 @@ public class Service2 {
                     ServerSocketChannel channel = (ServerSocketChannel) key.channel();
                     SocketChannel sc = channel.accept();
                     sc.configureBlocking(false);//selector要工作在非阻塞模式下
-                    SelectionKey scKey = sc.register(selector, 0, null);
+                    ByteBuffer buffer = ByteBuffer.allocate(4);
+                    SelectionKey scKey = sc.register(selector, 0, buffer);
                     scKey.interestOps(SelectionKey.OP_READ);
                     log.debug("sc: {}",sc);
                 }else if(key.isReadable()){
                     try{
                         SocketChannel channel = (SocketChannel) key.channel();
-                        ByteBuffer buffer = ByteBuffer.allocate(32);
+                        ByteBuffer buffer = (ByteBuffer) key.attachment();
                         int read = channel.read(buffer);
                         //客户端返回值为-1，表示客户端正常断开
                         if(read==-1){
                             key.cancel();
                         }
-                        buffer.flip();
-                        ByteBufferUtil.debugRead(buffer);
+//                        buffer.flip();
+//                        System.out.println(Charset.defaultCharset().decode(buffer));
+//                        ByteBufferUtil.debugRead(buffer);
+                        //1. 使用分隔符方式处理消息边界，如果buffer不够大，需要手动扩容
+                        ByteBufferUtil.split(buffer);
+                        //手动扩容步骤
+                        if(buffer.position()==buffer.limit()){
+                            ByteBuffer newBuffer = ByteBuffer.allocate(buffer.capacity()*2);
+                            buffer.flip();
+                            newBuffer.put(buffer);
+                            key.attach(newBuffer);
+                        }
                         buffer.clear();
                     }catch (Exception e){
                         //客户端异常断开连接，需要将这个key从selector中取消
+                        e.printStackTrace();
                         key.cancel();
+
                     }
                 }
 
