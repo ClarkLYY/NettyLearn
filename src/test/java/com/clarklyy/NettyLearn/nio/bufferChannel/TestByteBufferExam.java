@@ -1,4 +1,4 @@
-package com.clarklyy.NettyLearn;
+package com.clarklyy.NettyLearn.nio.bufferChannel;
 
 import java.nio.ByteBuffer;
 

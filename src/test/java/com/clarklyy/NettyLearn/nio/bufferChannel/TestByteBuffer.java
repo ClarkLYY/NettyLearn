@@ -1,4 +1,4 @@
-package com.clarklyy.NettyLearn;
+package com.clarklyy.NettyLearn.nio.bufferChannel;
 
 import lombok.extern.slf4j.Slf4j;
 import java.io.FileInputStream;

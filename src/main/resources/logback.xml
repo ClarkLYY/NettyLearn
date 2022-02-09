@@ -31,7 +31,7 @@
     </appender>
 
     <!-- show parameters for hibernate sql 专为 Hibernate 定制 -->
-    <logger name="com.clarklyy.NettyLearn.TestByteBuffer" level="DEBUG" />
+    <logger name="com.clarklyy.NettyLearn.nio.bufferChannel.TestByteBuffer" level="DEBUG" />
 
 
     <!-- 日志输出级别 -->

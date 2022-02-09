@@ -1,4 +1,4 @@
-package com.clarklyy.NettyLearn.c4.server;
+package com.clarklyy.NettyLearn.nio.server;
 
 import com.clarklyy.NettyLearn.util.ByteBufferUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -7,11 +7,11 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.*;
-import java.nio.charset.Charset;
 import java.util.Iterator;
 
 /**
- * 异步阻塞（java nio用到了selector）
+ * io多路复用（java nio用到了selector）
+ * 解决读事件的粘包半包问题
  */
 @Slf4j
 public class Service2 {
@@ -41,7 +41,7 @@ public class Service2 {
                 //5. 区分事件类型
                 if(key.isAcceptable()){
                     ServerSocketChannel channel = (ServerSocketChannel) key.channel();
-                    SocketChannel sc = channel.accept();
+                    SocketChannel sc = ssc.accept();
                     sc.configureBlocking(false);//selector要工作在非阻塞模式下
                     ByteBuffer buffer = ByteBuffer.allocate(4);
                     SelectionKey scKey = sc.register(selector, 0, buffer);

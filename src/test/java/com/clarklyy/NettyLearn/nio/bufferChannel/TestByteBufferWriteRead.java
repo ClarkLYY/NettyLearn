@@ -1,4 +1,4 @@
-package com.clarklyy.NettyLearn;
+package com.clarklyy.NettyLearn.nio.bufferChannel;
 
 import com.clarklyy.NettyLearn.util.ByteBufferUtil;
 
